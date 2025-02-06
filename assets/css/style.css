@@ -1,0 +1,50 @@
+* {
+    scroll-behavior: smooth;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    /* background-color: #212121;
+    color: rgb(232, 232, 232); */
+    overflow: hidden;
+}
+
+p {
+    /* word-break: break-all; */
+}
+
+pre {
+    background-color: #212529;
+    padding: 1em;
+    border-radius: .75em;
+    border: 1px solid #515151;
+    /* word-break: break-all; */
+}
+
+.clearfix {
+    max-width: 98vw;
+}
+
+.svg-icon {
+    filter: invert();
+}
+
+think {
+    display: block;
+    padding: 1em;
+    border: 1px solid #343a40;
+    background-color: #212529;
+    border-radius: .5em;
+}
+think::before {
+    content: "think";
+    display: block;
+    color: #6c757d;
+}
+
+.badge-name {
+    display: block;
+    width: fit-content;
+    margin-bottom: .5em;
+}
