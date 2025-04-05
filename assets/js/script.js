@@ -30,7 +30,17 @@ document.addEventListener('keydown', (event) => {
             show_sidebar()
         }
     }
+
+    if(event.ctrlKey && event.altKey && event.key == "h") {
+        document.getElementById('is-history').checked = ! document.getElementById('is-history').checked
+    }
 });
+
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
 
 const db_name = "lollama_data"
 const table_name = "history"
