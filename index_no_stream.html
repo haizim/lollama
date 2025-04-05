@@ -11,13 +11,18 @@
 </head>
 <body>
     <div style="position: fixed; top: 1em; left: 1em; z-index: 99; display: none;" id="show-sidebar">
-        <button class="btn btn-dark" style="box-shadow: 0 0 10px rgba(200, 200, 200, 0.5);" onclick="show_sidebar()" data-bs-toggle="tooltip" data-bs-placement="right" title="ctrl + alt + s">
-            <span class="navbar-toggler-icon pointer"></span>
-        </button>
+        <div class="btn-group" style="box-shadow: 0 0 10px rgba(200, 200, 200, 0.5);">
+            <button class="btn btn-dark" style="background-color: #0d0d0d;" onclick="show_sidebar()" data-bs-toggle="tooltip" data-bs-placement="right" title="ctrl + alt + s">
+                <span class="navbar-toggler-icon pointer"></span>
+            </button>
+            <button class="btn btn-dark" style="background-color: #0d0d0d;" onclick="document.getElementById('new').click()">
+                ➕
+            </button>
+        </div>
     </div>
     <div class="row">
-        <div class="col-sm-2 sidebar p-4 transition-all" style="background-color: #0d0d0d; height: 100vh; overflow-y: scroll;" id="sidebar">
-            <div style="background-color: #0d0d0d;">
+        <div class="col-sm-2 sidebar p-4" style="background-color: #0d0d0d; height: 100vh; overflow-y: scroll;" id="sidebar">
+            <div>
                 <div class="row">
                     <div class="col-sm-10">
                         <h4>Lollama</h4>
@@ -66,19 +71,19 @@
                 <div class="container-fluid">
                     <ul class="navbar-nav" id="histories">
                         <li class="nav-item">
-                            <a href="/" class="nav-link">+ New</a>
+                            <a href="#" class="nav-link" id="new">+ New</a>
                         </li>
                     </ul>
                 </div>
             </nav>
 
         </div>
-        <div class="col-sm-10 ps-0 transition-all" id="chat-container">
-            <div id="chats" class="container-fluid p-3" style="height: 82vh; overflow-y: scroll; background: #171717;">
+        <div class="col-sm-10" id="chat-container" style="background: #171717;">
+            <div id="chats" class="container-fluid p-3 ps-4" style="height: 82vh; overflow-y: scroll;">
                 
             </div>
             
-            <div class="container-fluid pt-3" style="height: 18vh; background: #171717;">
+            <div class="container-fluid pt-3" style="height: 18vh;">
 
                 <div style="position: absolute; margin-top: 1em; width: 100%;" class="transition-all" id="btn-down">
                     <button class="btn btn-info" style="left: 40%; position: absolute; box-shadow: 0 0 10px #0dcaf0;" onclick="to_bottom()">↓</button>

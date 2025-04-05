@@ -4,7 +4,7 @@ let models = mdl = {}
 var converter = new showdown.Converter(); // md to html converter
 let chats = []
 // const dflt = "deepseek-r1:8b" // default model
-const dflt = "llama3.2:latest" // default model
+const dflt = "gemma3:4b" // default model
 let autoscroll = true
 let last_top = 0
 
@@ -17,6 +17,7 @@ var toastList = toastElList.map(function (toastEl) {
 
 get_models()
 document.getElementById('prompt').focus()
+document.getElementById('new').href = url.pathname
 
 document.addEventListener('keydown', (event) => {
     if(event.ctrlKey && event.key == "Enter") {
