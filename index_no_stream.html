@@ -36,7 +36,7 @@
                                 </div>
                             </li>
                             <li class="nav-item">
-                                <select class="form-select" id="model" onchange="setModel()">
+                                <select class="form-select" id="model" onchange="set_model()">
                                     <option>Belum ada model</option>
                                 </select>
                             </li>
@@ -62,6 +62,10 @@
             </div>
             
             <div class="container-fluid pt-3" style="height: 18vh; background: none;">
+                <div style="position: absolute; margin-top: 1em; width: 100%; transition: all .5s;" id="btn-down">
+                    <button class="btn btn-info" style="left: 38%; position: absolute; box-shadow: 0 0 10px #0dcaf0;" onclick="to_bottom()">↓</button>
+                </div>
+                
                 <div class="bg-dark" style="width: 100vw; height: 18vh; position: absolute; z-index: 99;display: none; align-items: center; justify-content: center;opacity: .8;margin: -.8rem;" id="load">
                     <div class="spinner-border mx-auto" role="status">
                         <span class="visually-hidden">Loading...</span>

@@ -23,7 +23,7 @@ pre {
 }
 
 pre::before {
-    content: 'Click to select all';
+    content: 'Double click to select all';
     display: block;
     margin-bottom: 1em;
     color: rgba(200, 200, 200, .5);

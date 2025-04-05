@@ -37,7 +37,7 @@
                                     </div>
                                 </li>
                                 <li class="nav-item">
-                                    <select class="form-select" id="model" onchange="setModel()">
+                                    <select class="form-select" id="model" onchange="set_model()">
                                         <option>Belum ada model</option>
                                     </select>
                                 </li>
@@ -66,7 +66,12 @@
                 
             </div>
             
-            <div class="container-fluid pt-3" style="height: 18vh; background: none;">
+            <div class="container-fluid pt-3" style="height: 18vh; background: #171717;">
+
+                <div style="position: absolute; margin-top: 1em; width: 100%; transition: all .5s;" id="btn-down">
+                    <button class="btn btn-info" style="left: 38%; position: absolute; box-shadow: 0 0 10px #0dcaf0;" onclick="to_bottom()">↓</button>
+                </div>
+
                 <div class="bg-dark" style="width: 100vw; height: 18vh; position: absolute; z-index: 99;display: none; align-items: center; justify-content: center;opacity: .8;margin: -.8rem;" id="load">
                     <div class="spinner-border mx-auto" role="status">
                         <span class="visually-hidden">Loading...</span>
@@ -103,6 +108,7 @@
             const id_prompt = 'chat-' + (chats.length + 1)
             const model = document.querySelector('#model option:checked')
             const is_history = document.getElementById('is-history').checked
+            autoscroll = true
             
             if (prompt_raw == '') return toastList.filter(t => t._element.id == 'prompt-kosong')[0].show()
 
@@ -213,7 +219,8 @@
                 }
                 chat_resp.innerHTML = resp_html + `<div id="last-${id_resp}"></div>`
                 try {
-                    document.getElementById('last-' + id_resp).scrollIntoView();
+                    console.log('autoscroll', autoscroll);
+                    if (autoscroll) document.getElementById('last-' + id_resp).scrollIntoView();
                     select_pre()
                 } catch (error) {
                     console.error('err: ', error, id_resp);

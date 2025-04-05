@@ -5,6 +5,8 @@ var converter = new showdown.Converter(); // md to html converter
 let chats = []
 // const dflt = "deepseek-r1:8b" // default model
 const dflt = "llama3.2:latest" // default model
+let autoscroll = true
+let last_top = 0
 
 var toastElList = [].slice.call(document.querySelectorAll('.toast'))
 var toastList = toastElList.map(function (toastEl) {
@@ -61,6 +63,24 @@ openRequest.onupgradeneeded = function (event) {
         objStore.createIndex("data", "data", { unique: false }) 
         console.log('data created')
     }
+}
+
+document.getElementById('chats').onscroll = (e) => {
+    let target = e.target
+    let scroll_position = target.scrollTop
+    const btm = document.getElementById('btn-down')
+    
+    if (scroll_position < last_top) {
+        autoscroll = false
+        btm.style.setProperty('margin-top', '-4em')
+    }
+
+    if (scroll_position > (target.scrollTopMax - 50)) {
+        autoscroll = true
+        btm.style.setProperty('margin-top', '1em')
+    }
+
+    last_top = scroll_position
 }
 
 function add_history (history_data) { 
@@ -196,6 +216,7 @@ function load_chat() {
             document.getElementById(id_prompt).scrollIntoView()
             
             select_pre()
+            to_bottom()
         });
     })
 }
@@ -229,13 +250,13 @@ function get_models() {
             // Update default value in DOM
             const modelOptions = document.getElementById('model');
             modelOptions.value = dflt;  // Set the value directly
-            setModel()
+            set_model()
         }
     });
 }
 
 
-function setModel() {
+function set_model() {
     const model = document.querySelector('#model option:checked').value
     const id_chg = "chg-" + Date.now();
 
@@ -254,10 +275,12 @@ function select_pre() {
     const pre = document.querySelectorAll('pre')
 
     pre.forEach(p => {
-        p.onclick = function (e) {
+        p.ondblclick = function (e) {
             console.log('e', e)
+            console.log('e target', e.target)
             
-            let comp = e.target.firstChild.firstChild
+            let comp = e.target.tagName == 'PRE' ? e.target.firstChild.firstChild : e.target.firstChild
+            // let comp = e.target.firstChild.firstChild
             
             let range = new Range();
             range.setStart(comp, 0)
@@ -267,4 +290,8 @@ function select_pre() {
             document.getSelection().addRange(range)
         }
     })
+}
+
+function to_bottom() {
+    document.getElementById('chats').lastChild.lastChild.lastChild.scrollIntoView()
 }
