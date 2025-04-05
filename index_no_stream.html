@@ -10,62 +10,82 @@
     <title>Lollama</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm bg-secondary" style="height: 7vh;">
-        <div class="container-fluid">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    Lollama
-                </li>
-                <li class="nav-item">
-                </li>
-                <li class="nav-item">
-                    
-                </li>
-            </ul>
-            <div class="d-flex">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="server" placeholder="Server" name="server" value="http://127.0.0.1:11434">
-                    <button class="btn btn-info" type="button" onclick="get_models()">
-                        <img class="svg-icon" src="assets/img/link.svg" alt="Connect">
-                    </button>
-                    
-                    <span class="input-group-text"></span>
-                    
-                    <select class="form-select" id="model">
-                        <option>Belum ada model</option>
-                    </select> 
-                </div>
+    <div class="row">
+        <div class="col-sm-2 sidebar p-4" style="background-color: #2e3440; height: 100vh; overflow-y: scroll;">
+            <h4>Lollama</h4>
+            
+            <hr>
+            <button class="btn btn-block" data-bs-toggle="collapse" data-bs-target="#settings" style="cursor: pointer;">Settings ▾</button>
+            
+            <div id="settings" class="collapse">
+                <nav class="navbar">
+                    <div class="container-fluid">
+                        <ul class="navbar-nav">
+                            <li class="nav-item mb-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is-history" checked>
+                                    <label class="form-check-label" for="is-history">With History</label>
+                                </div>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="server" placeholder="Server" name="server" value="http://127.0.0.1:11434">
+                                    <button class="btn btn-info" type="button" onclick="get_models()">
+                                        <img class="svg-icon" src="assets/img/link.svg" alt="Connect">
+                                    </button>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <select class="form-select" id="model" onchange="setModel()">
+                                    <option>Belum ada model</option>
+                                </select>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
             </div>
-        </div>
-    </nav>
-    
-    <div id="chats" class="container-fluid p-3" style="height: 75vh; overflow-y: scroll;">
-        
-    </div>
-    
-    <div class="container-fluid bg-secondary pt-3" style="height: 18vh;">
-        <div class="bg-dark" style="width: 100vw; height: 18vh; position: absolute; z-index: 99;display: none; align-items: center; justify-content: center;opacity: .8;margin: -.8rem;" id="load">
-            <div class="spinner-border mx-auto" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
 
-        <div class="toast align-items-center bg-danger start-50 translate-middle-x" role="alert" aria-live="assertive" aria-atomic="true" id="prompt-kosong" style="position: absolute; z-index: 99; opacity: .8;">
-            <div class="d-flex">
-                <div class="toast-body">
-                Prompt tidak boleh kosong!
+            <hr>
+            
+            <nav class="navbar">
+                <span class="navbar-brand">History</span>
+                <div class="container-fluid">
+                    <ul class="navbar-nav" id="histories">
+                    </ul>
                 </div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </nav>
+
+        </div>
+        <div class="col-sm-10 ps-0">
+            <div id="chats" class="container-fluid p-3" style="height: 82vh; overflow-y: scroll;">
+                
+            </div>
+            
+            <div class="container-fluid pt-3" style="height: 18vh; background: none;">
+                <div class="bg-dark" style="width: 100vw; height: 18vh; position: absolute; z-index: 99;display: none; align-items: center; justify-content: center;opacity: .8;margin: -.8rem;" id="load">
+                    <div class="spinner-border mx-auto" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+        
+                <div class="toast align-items-center bg-danger start-50 translate-middle-x" role="alert" aria-live="assertive" aria-atomic="true" id="prompt-kosong" style="position: absolute; z-index: 99; opacity: .8;">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                        Prompt tidak boleh kosong!
+                        </div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+                
+                <div class="input-group mb-3">
+                    <textarea class="form-control" id="prompt" rows="5" placeholder="Pengen dibantu apa? (ctrl + enter untuk submit)"></textarea>
+                    <button id="btn-run" class="btn btn-lg btn-info" type="button" onclick="get_result()">
+                        <img class="svg-icon" src="assets/img/send-fill.svg" alt="Send">
+                    </button>
+                </div>
+                
             </div>
         </div>
-        
-        <div class="input-group mb-3">
-            <textarea class="form-control" id="prompt" rows="5" placeholder="Pengen dibantu apa? (ctrl + enter untuk submit)"></textarea>
-            <button id="btn-run" class="btn btn-lg btn-info" type="button" onclick="get_result()">
-                <img class="svg-icon" src="assets/img/send-fill.svg" alt="Send">
-            </button>
-        </div>
-        
     </div>
     
     <script src="assets/js/script.js"></script>
@@ -120,8 +140,12 @@
                     const duration = data.total_duration / Math.pow(10, 9);
                     const id_resp = new Date(data.created_at).valueOf();
 
+                    delete data['message']
+
                     chats.push({
                         role: 'assistant',
+                        model: model.value,
+                        detail: data,
                         content: resp
                     });
 

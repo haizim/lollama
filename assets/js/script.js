@@ -1,7 +1,9 @@
+let timestamp = Date.now()
+const url = new URL(window.location.href)
 let models = mdl = {}
 var converter = new showdown.Converter(); // md to html converter
 let chats = []
-// const dflt = "deepseek-r1:7b" // default model
+// const dflt = "deepseek-r1:8b" // default model
 const dflt = "llama3.2:latest" // default model
 
 var toastElList = [].slice.call(document.querySelectorAll('.toast'))
@@ -19,6 +21,183 @@ document.addEventListener('keydown', (event) => {
         get_result()
     }
 });
+
+const db_name = "lollama_data"
+const table_name = "history"
+const version = 1
+const openRequest = indexedDB.open(db_name, version);
+let db
+
+openRequest.onsuccess = function (event) { 
+    db = event.target.result
+    console.log("Database created", db) 
+
+    if (document.getElementById('histories')) {
+        load_history()
+    }
+
+    console.log(url)
+    
+    if (url.searchParams.get('timestamp')) {
+        timestamp = parseInt(url.searchParams.get('timestamp'))
+        load_chat()
+    }
+}
+
+openRequest.onupgradeneeded = function (event) { 
+    // Create an object store 
+    const objStore = db.createObjectStore(table_name, { keyPath: "timestamp", autoIncrement: true, })
+    
+    // Create indexes 
+    if (!db.objectStoreNames.contains('timestamp')) {
+        objStore.createIndex("timestamp", "timestamp", { unique: true })
+        console.log('timestamp created')
+    }
+    if (!db.objectStoreNames.contains('updated_at')) {
+        objStore.createIndex("updated_at", "updated_at", { unique: false }) 
+        console.log('updated_at created')
+    }
+    if (!db.objectStoreNames.contains('data')) {
+        objStore.createIndex("data", "data", { unique: false }) 
+        console.log('data created')
+    }
+}
+
+function add_history (history_data) { 
+    const transaction = db.transaction(table_name, "readwrite"); 
+    const objStore = transaction.objectStore(table_name)
+
+    const request = objStore.add(history_data)
+    
+    request.onsuccess = function (event) { 
+        console.log('add success', event)
+    }
+    
+    request.onerror = function (event) { 
+        console.log('add fail', event);
+    }
+}
+
+function get_history(id = null) {
+    const transaction = db.transaction(table_name, "readonly")
+    const objStore = transaction.objectStore(table_name)
+    
+    let request
+    if (id === null) {
+        // Get all data
+        request = objStore.getAll()
+    } else {
+        // Make a request to get the data 
+        request = objStore.get(id)
+    }
+
+    let resp = new Promise((resolve, reject) => {
+        request.onsuccess = function (event) { 
+            console.log('event.target', event.target)
+            console.log('event.target.result', event.target.result)
+            resolve(event.target.result)
+        }
+
+        request.onerror = function () {
+            resolve(false)
+        }
+    })
+
+    return resp
+}
+
+function update_history (history_data) {
+    const transaction = db.transaction(table_name, "readwrite")
+    const objStore = transaction.objectStore(table_name)
+
+    // Make a request to get the data 
+    const getRequest = objStore.get(timestamp)
+    
+    // Handle a success event 
+    getRequest.onsuccess = function (event) { 
+        // Get the old user data 
+        const history = event.target.result
+        console.log('history :', history)
+        
+        // Update the user data 
+        history.updated_at = history_data.updated_at
+        history.data = history_data.data
+        
+        // Make a request to update the data 
+        const putRequest = objStore.put(history)
+        
+        putRequest.onsuccess = function (event) { 
+            console.log('update success', event)
+        }
+        putRequest.onerror = function (event) { 
+            console.log('update fail', event)
+        }
+    }
+    getRequest.onerror = function (event) {
+        console.log('update fail request', event)
+    }
+}
+
+function load_history() {
+    get_history().then((data) => {
+        console.log('load_history data.result :', data)
+        data.reverse().forEach(d => {
+            const date = new Date(d.timestamp)
+            
+            let content = `<a class="nav-link" href="?timestamp=${d.timestamp}">${date.toLocaleString()} 🭸${d.timestamp} (${d.data.length})</a>`
+
+            let li = document.createElement('li')
+            li.setAttribute('id', 'history-' + d.timestamp)
+            li.classList.add('nav-item')
+            li.innerHTML = content
+        
+            document.getElementById('histories').appendChild(li)
+        })
+    })
+}
+
+function load_chat() {
+    get_history(timestamp).then((data) => {
+        document.querySelector(`#history-${timestamp} a`).classList.add('text-info')
+        document.querySelector(`#history-${timestamp} a`).style.setProperty('font-weight', 'bold')
+        document.querySelector(`#history-${timestamp} a`).scrollIntoView()
+
+        console.log('load_chat data', data);
+        console.log('-----');
+        
+        data.data.forEach(d => {
+            // console.log(d)
+            chats.push(d)
+
+            const id_prompt = 'chat-' + (chats.length)
+
+            const chatDiv = document.createElement('div')
+            chatDiv.id = id_prompt
+            chatDiv.classList.add('clearfix')
+
+            if (d.role == 'user') {
+                prompt = d.content.replaceAll("\n", "<br>")
+                prompt = converter.makeHtml(prompt)
+                chatDiv.innerHTML = `<div class="float-end alert alert-info">${prompt}</div>`
+            } else {
+                let content = `<h5><span class="badge bg-secondary text-info badge-name">${d.model}</span></h5>`
+
+                const duration = d.detail.eval_duration / Math.pow(10, 9);
+                const tokens = d.detail.eval_count
+                const bench = tokens / duration
+                // console.log('duration : ', duration, 'bench : ', bench);
+
+                const detail = `<footer class="blockquote-footer">${tokens} tok | ${duration} s | ${bench} tok/s</footer>`;
+
+                content += `<div class="float-start alert alert-dark" id="content-${id_prompt}">${converter.makeHtml(d.content)} ${detail}</div>`
+                chatDiv.innerHTML = content
+            }
+            document.getElementById("chats").appendChild(chatDiv)
+            document.getElementById(id_prompt).scrollIntoView()
+            
+        });
+    })
+}
 
 function get_models() {
     const server = document.getElementById('server').value

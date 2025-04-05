@@ -48,3 +48,7 @@ think::before {
     width: fit-content;
     margin-bottom: .5em;
 }
+
+.opacity-0 {
+    opacity: 0;
+}
