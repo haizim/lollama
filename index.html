@@ -10,20 +10,32 @@
     <title>Lollama</title>
 </head>
 <body>
+    <div style="position: fixed; top: 1em; left: 1em; z-index: 99; display: none;" id="show-sidebar">
+        <button class="btn btn-dark" style="box-shadow: 0 0 10px rgba(200, 200, 200, 0.5);" onclick="show_sidebar()">
+            <span class="navbar-toggler-icon pointer"></span>
+        </button>
+    </div>
     <div class="row">
-        <div class="col-sm-2 sidebar p-4" style="background-color: #0d0d0d; height: 100vh; overflow-y: scroll;">
+        <div class="col-sm-2 sidebar p-4 transition-all" style="background-color: #0d0d0d; height: 100vh; overflow-y: scroll;" id="sidebar">
             <div style="background-color: #0d0d0d;">
-                <h4>Lollama</h4>
+                <div class="row">
+                    <div class="col-sm-10">
+                        <h4>Lollama</h4>
+                    </div>
+                    <div class="col-sm-2 text-right">
+                        <span class="navbar-toggler-icon pointer" onclick="hide_sidebar()"></span>
+                    </div>
+                </div>
                 
                 <hr>
-                <button class="btn btn-block" data-bs-toggle="collapse" data-bs-target="#settings" style="cursor: pointer;">Settings ▾</button>
+                <button class="btn btn-block w-100 text-center" data-bs-toggle="collapse" data-bs-target="#settings" style="cursor: pointer;">Settings ▾</button>
                 
                 <div id="settings" class="collapse">
                     <nav class="navbar">
                         <div class="container-fluid">
                             <ul class="navbar-nav">
                                 <li class="nav-item mb-2">
-                                    <div class="form-check form-switch">
+                                    <div class="form-check form-switch w-100">
                                         <input class="form-check-input" type="checkbox" id="is-history" checked>
                                         <label class="form-check-label" for="is-history">With History</label>
                                     </div>
@@ -50,7 +62,7 @@
             </div>
             
             <nav class="navbar">
-                <span class="navbar-brand">History</span>
+                <span class="navbar-brand w-100 text-center">History</span>
                 <div class="container-fluid">
                     <ul class="navbar-nav" id="histories">
                         <li class="nav-item">
@@ -61,15 +73,15 @@
             </nav>
 
         </div>
-        <div class="col-sm-10 ps-0">
+        <div class="col-sm-10 ps-0 transition-all" id="chat-container">
             <div id="chats" class="container-fluid p-3" style="height: 82vh; overflow-y: scroll; background: #171717;">
                 
             </div>
             
             <div class="container-fluid pt-3" style="height: 18vh; background: #171717;">
 
-                <div style="position: absolute; margin-top: 1em; width: 100%; transition: all .5s;" id="btn-down">
-                    <button class="btn btn-info" style="left: 38%; position: absolute; box-shadow: 0 0 10px #0dcaf0;" onclick="to_bottom()">↓</button>
+                <div style="position: absolute; margin-top: 1em; width: 100%;" class="transition-all" id="btn-down">
+                    <button class="btn btn-info" style="left: 40%; position: absolute; box-shadow: 0 0 10px #0dcaf0;" onclick="to_bottom()">↓</button>
                 </div>
 
                 <div class="bg-dark" style="width: 100vw; height: 18vh; position: absolute; z-index: 99;display: none; align-items: center; justify-content: center;opacity: .8;margin: -.8rem;" id="load">

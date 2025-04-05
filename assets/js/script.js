@@ -22,6 +22,14 @@ document.addEventListener('keydown', (event) => {
     if(event.ctrlKey && event.key == "Enter") {
         get_result()
     }
+
+    if(event.ctrlKey && event.altKey && event.key == "s") {
+        if (document.getElementById('chat-container').classList.contains('col-sm-10')) {
+            hide_sidebar()
+        } else {
+            show_sidebar()
+        }
+    }
 });
 
 const db_name = "lollama_data"
@@ -294,4 +302,24 @@ function select_pre() {
 
 function to_bottom() {
     document.getElementById('chats').lastChild.lastChild.lastChild.scrollIntoView()
+}
+
+function hide_sidebar() {
+    let sidebar = document.getElementById('sidebar')
+    let chat = document.getElementById('chat-container')
+    let show = document.getElementById('show-sidebar')
+
+    sidebar.style.setProperty('display', 'none')
+    chat.classList.replace('col-sm-10', 'col-sm-12')
+    show.style.setProperty('display', 'block')
+}
+
+function show_sidebar() {
+    let sidebar = document.getElementById('sidebar')
+    let chat = document.getElementById('chat-container')
+    let show = document.getElementById('show-sidebar')
+
+    sidebar.style.setProperty('display', 'block')
+    chat.classList.replace('col-sm-12', 'col-sm-10')
+    show.style.setProperty('display', 'none')
 }
