@@ -214,6 +214,7 @@
                 chat_resp.innerHTML = resp_html + `<div id="last-${id_resp}"></div>`
                 try {
                     document.getElementById('last-' + id_resp).scrollIntoView();
+                    select_pre()
                 } catch (error) {
                     console.error('err: ', error, id_resp);
                 }

@@ -195,6 +195,7 @@ function load_chat() {
             document.getElementById("chats").appendChild(chatDiv)
             document.getElementById(id_prompt).scrollIntoView()
             
+            select_pre()
         });
     })
 }
@@ -247,4 +248,23 @@ function setModel() {
     // chatDivResp.innerHTML = `Model changed to <b>${model}</b>`;
     chatDivResp.innerHTML = `<span class="badge bg-secondary">Model set to <span class="text-info">${model}</span></span>`;
     document.getElementById("chats").appendChild(chatDivResp);
+}
+
+function select_pre() {
+    const pre = document.querySelectorAll('pre')
+
+    pre.forEach(p => {
+        p.onclick = function (e) {
+            console.log('e', e)
+            
+            let comp = e.target.firstChild.firstChild
+            
+            let range = new Range();
+            range.setStart(comp, 0)
+            range.setEnd(comp, comp.length)
+
+            document.getSelection().removeAllRanges()
+            document.getSelection().addRange(range)
+        }
+    })
 }
