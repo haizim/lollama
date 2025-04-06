@@ -168,7 +168,7 @@
             chatDiv.classList.add('clearfix');
             prompt = prompt_raw.replaceAll("\n", "<br>")
             prompt = converter.makeHtml(prompt)
-            chatDiv.innerHTML = `<div class="float-end alert alert-info">${prompt}</div>`;
+            chatDiv.innerHTML = `<div class="float-end alert alert-info mw-100">${prompt}</div>`;
             document.getElementById("chats").appendChild(chatDiv);
             document.getElementById(id_prompt).scrollIntoView();
 
@@ -219,7 +219,7 @@
             chatDivResp.id = id_resp;
             chatDivResp.classList.add('clearfix');
             let content = `<h5><span class="badge bg-secondary text-info badge-name">${model.text}</span></h5>`;
-            content += `<div class="float-start alert alert-dark" id="content-${id_resp}"></div>`;
+            content += `<div class="float-start alert alert-dark mw-100" id="content-${id_resp}"></div>`;
             chatDivResp.innerHTML = content;
             document.getElementById("chats").appendChild(chatDivResp);
             

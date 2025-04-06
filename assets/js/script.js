@@ -234,7 +234,7 @@ function load_chat() {
             if (d.role == 'user') {
                 prompt = d.content.replaceAll("\n", "<br>")
                 prompt = converter.makeHtml(prompt)
-                chatDiv.innerHTML = `<div class="float-end alert alert-info">${prompt}</div>`
+                chatDiv.innerHTML = `<div class="float-end alert alert-info mw-100">${prompt}</div>`
             } else {
                 let content = `<h5><span class="badge bg-secondary text-info badge-name">${d.model}</span></h5>`
 
@@ -245,7 +245,7 @@ function load_chat() {
 
                 const detail = `<footer class="blockquote-footer">${tokens} tok | ${duration} s | ${bench} tok/s</footer>`;
 
-                content += `<div class="float-start alert alert-dark" id="content-${id_prompt}">${converter.makeHtml(d.content)} ${detail}</div>`
+                content += `<div class="float-start alert alert-dark mw-100" id="content-${id_prompt}">${converter.makeHtml(d.content)} ${detail}</div>`
                 chatDiv.innerHTML = content
             }
             document.getElementById("chats").appendChild(chatDiv)
@@ -377,24 +377,13 @@ function get_title() {
 
     let chat_send = chats.concat([{
         role:"user",
-        content:"make title for this conversation in max 5 words"
+        content:"make title for this conversation in max 5 words. dont give another explanation"
     }])
 
     const data_send = {
         model: model.value,
         messages: chat_send,
         stream: false,
-        format: {
-            type: 'object',
-            properties: {
-                title:{
-                    type:"string"
-                }
-            },
-            required:[
-                "title"
-            ]
-        }
     }
 
     document.getElementById('btn-get-title').disabled = true
@@ -410,10 +399,10 @@ function get_title() {
     })
     .then((response) => response.json())
     .then((data) => {
-        let content = JSON.parse(data.message.content)
-        console.log(data, content, content['title']);
+        let content = data.message.content
+        console.log(data, content)
 
-        document.getElementById('title').value = content['title']
+        document.getElementById('title').value = content
         set_title()
     })
     .finally(() => {
