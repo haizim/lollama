@@ -35,6 +35,10 @@ document.addEventListener('keydown', (event) => {
     if(event.ctrlKey && event.altKey && event.key == "h") {
         document.getElementById('is-history').checked = ! document.getElementById('is-history').checked
     }
+
+    if(event.ctrlKey && event.altKey && event.key == "t") {
+        get_title()
+    }
 });
 
 // Initialize tooltips
@@ -62,10 +66,15 @@ openRequest.onsuccess = function (event) {
     if (url.searchParams.get('timestamp')) {
         timestamp = parseInt(url.searchParams.get('timestamp'))
         load_chat()
+    } else {
+        const date = new Date(timestamp)
+        document.getElementById('title').value = date.toLocaleString('id-ID')
     }
 }
 
-openRequest.onupgradeneeded = function (event) { 
+openRequest.onupgradeneeded = function (event) {
+    const db = event.target.result;
+
     // Create an object store 
     const objStore = db.createObjectStore(table_name, { keyPath: "timestamp", autoIncrement: true, })
     
@@ -81,6 +90,10 @@ openRequest.onupgradeneeded = function (event) {
     if (!db.objectStoreNames.contains('data')) {
         objStore.createIndex("data", "data", { unique: false }) 
         console.log('data created')
+    }
+    if (!db.objectStoreNames.contains('title')) {
+        objStore.createIndex("title", "title", { unique: false }) 
+        console.log('title created')
     }
 }
 
@@ -109,11 +122,11 @@ function add_history (history_data) {
     const request = objStore.add(history_data)
     
     request.onsuccess = function (event) { 
-        console.log('add success', event)
+        console.log('add success', event, history_data)
     }
     
     request.onerror = function (event) { 
-        console.log('add fail', event);
+        console.log('add fail', event, history_data)
     }
 }
 
@@ -158,22 +171,18 @@ function update_history (history_data) {
         const history = event.target.result
         console.log('history :', history)
         
-        // Update the user data 
-        history.updated_at = history_data.updated_at
-        history.data = history_data.data
-        
         // Make a request to update the data 
-        const putRequest = objStore.put(history)
+        const putRequest = objStore.put(history_data)
         
         putRequest.onsuccess = function (event) { 
-            console.log('update success', event)
+            console.log('update success', event, history_data)
         }
         putRequest.onerror = function (event) { 
-            console.log('update fail', event)
+            console.log('update fail', event, history_data)
         }
     }
     getRequest.onerror = function (event) {
-        console.log('update fail request', event)
+        console.log('update fail request', event, history_data)
     }
 }
 
@@ -183,7 +192,15 @@ function load_history() {
         data.reverse().forEach(d => {
             const date = new Date(d.timestamp)
             
-            let content = `<a class="nav-link" href="?timestamp=${d.timestamp}">${date.toLocaleString()} 🭸${d.timestamp} (${d.data.length})</a>`
+            let title = ""
+
+            if (d.title && d.title != '') {
+                title = d.title
+            } else {
+                title = date.toLocaleString('id-ID')
+            }
+
+            let content = `<a class="nav-link" href="?timestamp=${d.timestamp}" id="link-history-${d.timestamp}">${title} (${d.data.length}) <small>🭸${d.timestamp}</small></a>`
 
             let li = document.createElement('li')
             li.setAttribute('id', 'history-' + d.timestamp)
@@ -237,6 +254,7 @@ function load_chat() {
             select_pre()
             to_bottom()
         });
+        document.getElementById('title').value = data.title ?? timestamp
     })
 }
 
@@ -333,4 +351,74 @@ function show_sidebar() {
     sidebar.style.setProperty('display', 'block')
     chat.classList.replace('col-sm-12', 'col-sm-10')
     show.style.setProperty('display', 'none')
+}
+
+function set_title(title = null) {
+    title = title ?? document.getElementById('title').value
+    const date = new Date(timestamp)
+    
+    new_history = {
+        timestamp: timestamp,
+        updated_at: Date.now(),
+        data: chats,
+        title: title,
+    }
+
+    update_history(new_history)
+
+    document.getElementById('link-history-' + timestamp).innerHTML = `${title} (${chats.length}) <small>🭸${timestamp}</small>`
+
+    alert('Title Updated')
+}
+
+function get_title() {
+    const server = document.getElementById('server').value
+    const url = server + "/api/chat"
+
+    let chat_send = chats.concat([{
+        role:"user",
+        content:"make title for this conversation in max 5 words"
+    }])
+
+    const data_send = {
+        model: model.value,
+        messages: chat_send,
+        stream: false,
+        format: {
+            type: 'object',
+            properties: {
+                title:{
+                    type:"string"
+                }
+            },
+            required:[
+                "title"
+            ]
+        }
+    }
+
+    document.getElementById('btn-get-title').disabled = true
+    document.getElementById('btn-set-title').disabled = true
+    document.getElementById('title').disabled = true
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data_send)
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        let content = JSON.parse(data.message.content)
+        console.log(data, content, content['title']);
+
+        document.getElementById('title').value = content['title']
+        set_title()
+    })
+    .finally(() => {
+        document.getElementById('btn-get-title').disabled = false
+        document.getElementById('btn-set-title').disabled = false
+        document.getElementById('title').disabled = false
+    })
 }

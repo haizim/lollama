@@ -13,11 +13,14 @@ It's simple, just clone it and open index.html
 - Double click to select all code snippet
 - Stop auto-scroll when user scroll up
 - Scroll to bottom and resume auto-scroll
+- Set title for conversation
+- Get conversation's title recommendation 
 
 ## Shortcut
-- `ctr + enter` to submit prompt, no need to leave your keyboard
+- `ctr + enter` submit prompt, no need to leave your keyboard
 - `ctr + alt + h` toggle "With History"
-- `ctr + alt + s` to hide/show sidebar
+- `ctr + alt + s` hide/show sidebar
+- `ctr + alt + t` get conversation's title recommendation 
 
 ## Thanks to
 - Bootstrap 5

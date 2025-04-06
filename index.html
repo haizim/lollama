@@ -11,9 +11,12 @@
 </head>
 <body>
     <div style="position: fixed; top: 1em; left: 1em; z-index: 99; display: none;" id="show-sidebar">
-        <div class="btn-group" style="box-shadow: 0 0 10px rgba(200, 200, 200, 0.5);">
+        <div class="btn-group-vertical" style="box-shadow: 0 0 10px rgba(200, 200, 200, 0.5);">
             <button class="btn btn-dark" style="background-color: #0d0d0d;" onclick="show_sidebar()" data-bs-toggle="tooltip" data-bs-placement="right" title="ctrl + alt + s">
                 <span class="navbar-toggler-icon pointer"></span>
+            </button>
+            <button class="btn btn-dark" style="background-color: #0d0d0d;" onclick="get_title()" data-bs-toggle="tooltip" data-bs-placement="right" title="ctrl + alt + t">
+                ⮃
             </button>
             <button class="btn btn-dark" style="background-color: #0d0d0d;" onclick="document.getElementById('new').click()">
                 ➕
@@ -46,11 +49,20 @@
                                     </div>
                                 </li>
                                 <li class="nav-item mb-2">
+                                    <div class="form-floating mb-3 mt-3">
+                                        <!--<input type="text" class="form-control" id="email" placeholder="Enter email" name="email">-->
+                                        <input type="text" class="form-control" id="title" placeholder="Title" name="title" value="">
+                                        <label for="title">Title</label>
+                                    </div>
+                                    <div class="btn-group w-100">
+                                        <button class="btn btn-info" type="button" onclick="get_title()" id="btn-get-title" data-bs-toggle="tooltip" data-bs-placement="right" title="ctrl + alt + t">⮃</button>
+                                        <button class="btn btn-info" type="button" onclick="set_title()" id="btn-set-title">🠊</button>
+                                    </div>
+                                </li>
+                                <li class="nav-item mb-2">
                                     <div class="input-group">
                                         <input type="text" class="form-control" id="server" placeholder="Server" name="server" value="http://127.0.0.1:11434">
-                                        <button class="btn btn-info" type="button" onclick="get_models()">
-                                            <img class="svg-icon" src="assets/img/link.svg" alt="Connect">
-                                        </button>
+                                        <button class="btn btn-info" type="button" onclick="get_models()">🠊</button>
                                     </div>
                                 </li>
                                 <li class="nav-item">
@@ -98,7 +110,7 @@
                 <div class="toast align-items-center bg-danger start-50 translate-middle-x" role="alert" aria-live="assertive" aria-atomic="true" id="prompt-kosong" style="position: absolute; z-index: 99; opacity: .8;">
                     <div class="d-flex">
                         <div class="toast-body">
-                        Prompt tidak boleh kosong!
+                            Prompt can't be empty!
                         </div>
                         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
@@ -121,6 +133,7 @@
         async function get_result() {
             const server = document.getElementById('server').value
             const url = server + "/api/chat"
+            let title = document.getElementById('title').value
             let prompt_raw = document.getElementById('prompt').value
             const id_prompt = 'chat-' + (chats.length + 1)
             const model = document.querySelector('#model option:checked')
@@ -138,7 +151,8 @@
             let new_history = {
                 timestamp: timestamp,
                 updated_at: Date.now(),
-                data: chats
+                title: title,
+                data: chats,
             }
 
             const current_history = get_history(timestamp)
@@ -253,7 +267,8 @@
             new_history = {
                 timestamp: timestamp,
                 updated_at: Date.now(),
-                data: chats
+                title: title,
+                data: chats,
             }
 
             update_history(new_history)
