@@ -1,5 +1,5 @@
 
-# Lolloma
+# Lollama
 Just simple web UI for Ollama
 
 ![Screenshot](/assets/img/screenshot.png)
