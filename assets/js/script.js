@@ -189,7 +189,17 @@ function update_history (history_data) {
 function load_history() {
     get_history().then((data) => {
         console.log('load_history data.result :', data)
-        data.reverse().forEach(d => {
+        data = data.sort((a, b) => {
+            if (a.updated_at > b.updated_at) {
+                return -1;
+            }
+            if (a.updated_at < b.updated_at) {
+                return 11;
+            }
+            return 0;
+        })
+
+        data.forEach(d => {
             const date = new Date(d.timestamp)
             
             let title = ""
@@ -200,7 +210,7 @@ function load_history() {
                 title = date.toLocaleString('id-ID')
             }
 
-            let content = `<a class="nav-link" href="?timestamp=${d.timestamp}" id="link-history-${d.timestamp}">${title} (${d.data.length}) <small>🭸${d.timestamp}</small></a>`
+            let content = `<a class="nav-link" href="?timestamp=${d.timestamp}" id="link-history-${d.timestamp}">${title} <span class="badge text-bg-secondary">${d.data.length}</span><br><small>🭸${d.timestamp}</small></a>`
 
             let li = document.createElement('li')
             li.setAttribute('id', 'history-' + d.timestamp)
@@ -256,7 +266,9 @@ function load_chat() {
         select_pre()
         to_bottom()
         
-        document.getElementById('title').value = data.title ?? timestamp
+        const title = data.title ?? timestamp
+        document.getElementById('title').value = title
+        document.title = "Lollama | " + title
     })
 }
 
@@ -361,7 +373,6 @@ function set_title(title = null) {
     
     new_history = {
         timestamp: timestamp,
-        updated_at: Date.now(),
         data: chats,
         title: title,
     }
@@ -369,10 +380,12 @@ function set_title(title = null) {
     update_history(new_history)
 
     try {
-        document.getElementById('link-history-' + timestamp).innerHTML = `${title} (${chats.length}) <small>🭸${timestamp}</small>`
+        document.getElementById('link-history-' + timestamp).innerHTML = `${title} <span class="badge text-bg-secondary">${chats.length}</span><br><small>🭸${timestamp}</small>`
     } catch (error) {
         console.error('err : ', error)
     }
+
+    document.title = "Lollama | " + title
 
     alert('Title Updated')
 }
