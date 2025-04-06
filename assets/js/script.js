@@ -251,9 +251,11 @@ function load_chat() {
             document.getElementById("chats").appendChild(chatDiv)
             document.getElementById(id_prompt).scrollIntoView()
             
-            select_pre()
-            to_bottom()
         });
+
+        select_pre()
+        to_bottom()
+        
         document.getElementById('title').value = data.title ?? timestamp
     })
 }
@@ -366,7 +368,11 @@ function set_title(title = null) {
 
     update_history(new_history)
 
-    document.getElementById('link-history-' + timestamp).innerHTML = `${title} (${chats.length}) <small>🭸${timestamp}</small>`
+    try {
+        document.getElementById('link-history-' + timestamp).innerHTML = `${title} (${chats.length}) <small>🭸${timestamp}</small>`
+    } catch (error) {
+        console.error('err : ', error)
+    }
 
     alert('Title Updated')
 }
@@ -377,7 +383,8 @@ function get_title() {
 
     let chat_send = chats.concat([{
         role:"user",
-        content:"make title for this conversation in max 5 words. dont give another explanation"
+        content:"make title for this conversation in max 5 words and make it in language that used in this conversation. dont give another explanation"
+        // content:"buat judul untuk percakapan ini dalam maksimal 5 kata dan buat dalam bahasa yang digunakan dalam percakapan ini. jangan berikan penjelasan lain"
     }])
 
     const data_send = {
