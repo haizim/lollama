@@ -186,6 +186,31 @@ function update_history (history_data) {
     }
 }
 
+function del_history(t) {    
+    get_history(t).then((d) => {
+        let title = ""
+        const date = new Date(d.timestamp)
+
+        if (d.title && d.title != '') {
+            title = d.title
+        } else {
+            title = date.toLocaleString('id-ID')
+        }
+
+        if (confirm(`Delete history "${title}" (${t})?`)) {
+            const transaction = db.transaction(table_name, "readwrite")
+            const objStore = transaction.objectStore(table_name)
+
+            const request = objStore.delete(t)
+
+            request.onsuccess = function (e) { 
+                 document.getElementById('history-' + t).remove()
+                 alert(`History "${title}" (${t}) has been deleted`)
+            }
+        }
+    })
+}
+
 function load_history() {
     get_history().then((data) => {
         console.log('load_history data.result :', data)
@@ -210,11 +235,14 @@ function load_history() {
                 title = date.toLocaleString('id-ID')
             }
 
-            let content = `<a class="nav-link" href="?timestamp=${d.timestamp}" id="link-history-${d.timestamp}">${title} <span class="badge text-bg-secondary">${d.data.length}</span><br><small>🭸${d.timestamp}</small></a>`
+            let content = `<a class="list-group-item list-group-item-action" href="?timestamp=${d.timestamp}" id="link-history-${d.timestamp}">${title} <br><small>🭸${d.timestamp}</small></a>`
+            content += `<div><span class="badge text-bg-secondary">${d.data.length}</span>`
+            if (d.timestamp != timestamp) content += `<br><button class="btn btn-sm text-danger" onclick="del_history(${d.timestamp})">Ⅹ</button>`
+            content += '</div>'
 
             let li = document.createElement('li')
             li.setAttribute('id', 'history-' + d.timestamp)
-            li.classList.add('nav-item')
+            li.className = 'list-group-item d-flex justify-content-between align-items-start mb-3'
             li.innerHTML = content
         
             document.getElementById('histories').appendChild(li)
@@ -396,7 +424,7 @@ function get_title() {
 
     let chat_send = chats.concat([{
         role:"user",
-        content:"make title for this conversation in max 5 words and make it in language that used in this conversation. dont give another explanation"
+        content:"make title for this conversation in language that used in this conversation with in max 5 words. dont give another explanation"
         // content:"buat judul untuk percakapan ini dalam maksimal 5 kata dan buat dalam bahasa yang digunakan dalam percakapan ini. jangan berikan penjelasan lain"
     }])
 
