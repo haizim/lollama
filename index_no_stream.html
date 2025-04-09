@@ -49,7 +49,7 @@
                                 </div>
                             </div></li>
                             <li><div class="dropdown-item-text">
-                                <div class="form-floating mb-3 mt-3">
+                                <div class="form-floating mb-1 mt-3">
                                     <input type="text" class="form-control" id="title" placeholder="Title" name="title" value="">
                                     <label for="title">Title</label>
                                 </div>
@@ -68,6 +68,83 @@
                                 <select class="form-select" id="model" onchange="set_model()">
                                     <option>Belum ada model</option>
                                 </select>
+                            </div></li>
+                            <li><div class="dropdown-item-text">
+                                <button class="btn w-100 dropdown-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#option" aria-expanded="false" aria-controls="option">
+                                    Options
+                                </button>
+                                <div class="collapse" id="option">
+                                    <div style="height: 52vh; overflow-y: scroll;">
+                                        <div class="form-floating mb-1">
+                                            <textarea class="form-control ollama-option" placeholder="System's Message" id="system" style="height: 100px"></textarea>
+                                            <label for="system">System's Message</label>
+                                        </div>
+                                        <div class="form-floating mb-1">
+                                            <input type="text" class="form-control ollama-option" id="stop">
+                                            <label for="stop">stop</label>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="mirostat" value="0">
+                                                <label for="mirostat">mirostat</label>
+                                            </div>
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="mirostat_eta" value="0.1">
+                                                <label for="mirostat_eta">mirostat_eta</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="mirostat_tau" value="5.0">
+                                                <label for="mirostat_tau">mirostat_tau</label>
+                                            </div>
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="num_ctx" value="2048">
+                                                <label for="num_ctx">num_ctx</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="repeat_last_n" value="64">
+                                                <label for="repeat_last_n">repeat_last_n</label>
+                                            </div>
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="repeat_penalty" value="1.1">
+                                                <label for="repeat_penalty">repeat_penalty</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="temperature" value="0.8">
+                                                <label for="temperature">temperature</label>
+                                            </div>
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="seed" value="0">
+                                                <label for="seed">seed</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="num_predict" value="-1">
+                                                <label for="num_predict">num_predict</label>
+                                            </div>
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="top_k" value="40">
+                                                <label for="top_k">top_k</label>
+                                            </div>
+                                        </div>
+                                        <div class="input-group">
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="top_p" value="0.9">
+                                                <label for="top_p">top_p</label>
+                                            </div>
+                                            <div class="form-floating mb-1">
+                                                <input type="text" class="form-control ollama-option" id="min_p" value="0.0">
+                                                <label for="min_p">min_p</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div></li>
                         </ul>
                     </div> 
@@ -113,7 +190,7 @@
                         </div>
                     </div>
                     
-                    <div class="input-group mb-3">
+                    <div class="input-group">
                         <textarea class="form-control" id="prompt" rows="5" placeholder="Pengen dibantu apa? (ctrl + enter untuk submit)"></textarea>
                         <button id="btn-run" class="btn btn-lg btn-info" type="button" onclick="get_result()">
                             <img class="svg-icon" src="assets/img/send-fill.svg" alt="Send">
@@ -134,27 +211,56 @@
             let prompt = document.getElementById('prompt').value;
             const id_prompt = Date.now();
             const model = document.querySelector('#model option:checked')
+            const is_history = document.getElementById('is-history').checked
+            let options = get_options()
             
             if (prompt == '') return toastList.filter(t => t._element.id == 'prompt-kosong')[0].show()
 
             chats.push({
                 role: 'user',
-                content: prompt
+                content: prompt,
+                options: options
             });
+
+            let opt_list = []
+            Object.keys(options).forEach((k) => {
+                v = options[k]
+                opt_list.push(`${k}: ${v}`)
+            })
+            let op = opt_list.join("\n")
+            let opt = `<button type="button" class="btn" data-bs-toggle="tooltip" title="${op}">ⓘ</button>`
 
             const chatDiv = document.createElement('div');
             chatDiv.id = id_prompt;
             chatDiv.classList.add('clearfix');
             prompt = prompt.replaceAll("\n", "<br>")
             prompt = converter.makeHtml(prompt)
-            chatDiv.innerHTML = `<div class="float-end alert alert-info">${prompt}</div>`;
+            chatDiv.innerHTML = `<div class="float-end alert alert-info mw-100 d-flex flex-column align-items-end"><div class="msg-user">${prompt}</div> ${opt}</div>`;
             document.getElementById("chats").appendChild(chatDiv);
 
-            const data_send = {
+            let data_send = {
                 model: model.value,
-                messages: chats,
-                stream: false,
+                stream: false
             }
+
+            let chats_send = chats
+            if (!is_history) {
+                console.log('without history')
+                
+                chats_send = [
+                    {
+                        role: 'user',
+                        content: prompt_raw
+                    }
+                ]
+            }
+
+            if (options.system) {
+                chats_send = [{ role: 'system', content: options.system }].concat(chats_send)
+            }
+
+            data_send['messages'] = chats_send
+            data_send['options'] = options
 
             document.getElementById('prompt').value = '';
             document.getElementById('prompt').disabled = true;

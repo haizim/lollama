@@ -69,3 +69,7 @@ think::before {
 .transition-all {
     transition: all .5s;
 }
+
+.msg-user p {
+    margin-bottom: 0;
+}

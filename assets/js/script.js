@@ -211,19 +211,15 @@ function del_history(t) {
     })
 }
 
+let h
 function load_history() {
     get_history().then((data) => {
         console.log('load_history data.result :', data)
-        data = data.sort((a, b) => {
-            if (a.updated_at > b.updated_at) {
-                return -1;
-            }
-            if (a.updated_at < b.updated_at) {
-                return 11;
-            }
-            return 0;
-        })
+        data = data.sort((a, b) => b.updated_at - a.updated_at)
+        h = data
 
+        console.log('history sorted', data);
+        
         data.forEach(d => {
             const date = new Date(d.timestamp)
             
@@ -234,7 +230,8 @@ function load_history() {
             } else {
                 title = date.toLocaleString('id-ID')
             }
-
+            console.log('data load :', d)
+            
             let content = `<a class="list-group-item list-group-item-action" href="?timestamp=${d.timestamp}" id="link-history-${d.timestamp}">${title} <br><small>🭸${d.timestamp}</small></a>`
             content += `<div><span class="badge text-bg-secondary">${d.data.length}</span>`
             if (d.timestamp != timestamp) content += `<br><button class="btn btn-sm text-danger" onclick="del_history(${d.timestamp})">Ⅹ</button>`
@@ -272,7 +269,18 @@ function load_chat() {
             if (d.role == 'user') {
                 prompt = d.content.replaceAll("\n", "<br>")
                 prompt = converter.makeHtml(prompt)
-                chatDiv.innerHTML = `<div class="float-end alert alert-info mw-100">${prompt}</div>`
+
+                let opt = ""
+                if (d.options) {
+                    let opt_list = []
+                    Object.keys(d.options).forEach((k) => {
+                        v = d.options[k]
+                        opt_list.push(`${k}: ${v}`)
+                    })
+                    let op = opt_list.join("\n")
+                    opt = `<button type="button" class="btn" data-bs-toggle="tooltip" title="${op}">ⓘ</button>`
+                }
+                chatDiv.innerHTML = `<div class="float-end alert alert-info mw-100 d-flex flex-column align-items-end"><div class="msg-user">${prompt}</div> ${opt}</div>`
             } else {
                 let content = `<h5><span class="badge bg-secondary text-info badge-name">${d.model}</span></h5>`
 
@@ -401,6 +409,7 @@ function set_title(title = null) {
     
     new_history = {
         timestamp: timestamp,
+        updated_at: Date.now(),
         data: chats,
         title: title,
     }
@@ -408,7 +417,7 @@ function set_title(title = null) {
     update_history(new_history)
 
     try {
-        document.getElementById('link-history-' + timestamp).innerHTML = `${title} <span class="badge text-bg-secondary">${chats.length}</span><br><small>🭸${timestamp}</small>`
+        document.getElementById('link-history-' + timestamp).innerHTML = `${title} <br><small>🭸${timestamp}</small>`
     } catch (error) {
         console.error('err : ', error)
     }
@@ -458,4 +467,25 @@ function get_title() {
         document.getElementById('btn-set-title').disabled = false
         document.getElementById('title').disabled = false
     })
+}
+
+function get_options() {
+    let components = document.getElementsByClassName('ollama-option')
+    components = [...components]
+
+    let options = {}
+    let opt_int = ['mirostat', 'num_ctx', 'repeat_last_n', 'seed', 'num_predict', 'top_k']
+    let opt_float = ['mirostat_eta', 'mirostat_tau', 'repeat_penalty', 'temperature', 'top_p', 'min_p']
+    
+    components.forEach(c => {
+        let val = c.value
+        const id = c.id
+        
+        if (opt_int.includes(id)) val = parseInt(val)
+        if (opt_float.includes(id)) val = parseFloat(val)
+        
+        if (val != '' || val > 0) options[id] = val
+    })
+
+    return options
 }
